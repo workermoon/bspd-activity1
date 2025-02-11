@@ -1,0 +1,35 @@
+name: flask workflow
+
+on:
+    push:
+        branches:
+            main
+    pull_request:
+        branches:
+            main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: checkout repository
+          uses: actions/checkout@v4
+
+        - name: install nginx
+          run: |
+            apt install nginx
+        
+        - name: log in to docker hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: build docker image
+          run: |
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/bspd-html-app:1.2.0 .
+
+        - name: push to docker hub
+          run: |
+            docker push ${{ secrets.DOCKER_USERNAME }}/bspd-html-app:1.2.0
